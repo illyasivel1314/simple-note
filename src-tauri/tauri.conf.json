@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "simple-note",
+  "version": "0.1.0",
+  "identifier": "com.simple-note.app",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:18080",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "calendar",
+        "width": 950,
+        "height": 560,
+        "transparent": true,
+        "decorations": false,
+        "alwaysOnBottom": true,
+        "devtools": false,
+        "resizable": false,
+        "skipTaskbar": true,
+        "shadow": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/icon.png",
+      "icons/app16.svg",
+      "icons/app32.svg",
+      "icons/app48.svg"
+    ]
+  }
+}

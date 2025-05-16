@@ -1,0 +1,53 @@
+[package]
+name = "simple-note"
+version = "0.1.0"
+description = "A Tauri App"
+authors = ["you"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "simple_note_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# tauri插件
+tauri = { version = "2", features = [ "tray-icon", "image-png"] }
+tauri-plugin-opener = "2"
+tauri-plugin-log = "2"
+tauri-plugin-positioner = { version = "2.0.0", features = ["tray-icon"] }
+tauri-plugin-single-instance = "2"
+
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+thiserror = "2.0"
+
+#diesel deps
+diesel_migrations = { version = "2.1.0", features = ["sqlite"] }
+diesel = { version = "2.2.0", features = ["sqlite", "returning_clauses_for_sqlite_3_35", "r2d2"] }
+
+# pool
+r2d2 = "0.8.10"
+
+# 日历组件
+tyme4rs = "1.1.8"
+chrono = "0.4"
+chinese-lunisolar-calendar = "0.2"
+
+# 全局变量
+dotenvy = "0.15"
+dotenv_codegen = "0.15"
+log = "0.4.25"
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-positioner = "2"
+

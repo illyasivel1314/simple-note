@@ -88,30 +88,17 @@ const HOLIDAY_ADDRESS: &str = "./resources/holiday";
  * @author: illya
  * @date: 2025/5/14 15:42
  **/
-pub async fn update_holiday_to_database() -> Result<(), AppError> {
+pub fn update_holiday_to_database() -> Result<(), AppError> {
     // 读取文件夹中的所有文件
     let file_list = file_util::acquire_file_list(HOLIDAY_ADDRESS)?;
 
     // 通过多线程读取所有文件内容
-    let mut tokio_result = vec![];
+    let mut holiday_table_list = vec![];
     for file_result in file_list {
         let file = file_result.map_err(|err| FileError::FileTraverseError(err))?;
-        tokio_result.push(tokio::spawn(acquire_holiday(file)));
+        holiday_table_list.extend(acquire_holiday(file)?.into_holiday());
     }
-    let mut holiday_list = vec![];
-    for handle in tokio_result {
-        let result = handle
-            .await
-            .map_err(|err| TokioError::TokioRunTimeError(err))?;
-        holiday_list.push(result?);
-    }
-
-    // 将holiday转化为数据库表
-    let mut holiday_table_list = vec![];
-    holiday_list.iter().for_each(|holiday| {
-        holiday_table_list.extend(holiday.into_holiday());
-    });
-
+    
     // 先删除表中所有数据
     dao::calendar::delete_holiday();
     // 向表中新增所有数据
@@ -125,7 +112,7 @@ pub async fn update_holiday_to_database() -> Result<(), AppError> {
  * @author: illya
  * @date: 2025/5/14 16:36
  **/
-async fn acquire_holiday(file: DirEntry) -> Result<CalendarJson, AppError> {
+fn acquire_holiday(file: DirEntry) -> Result<CalendarJson, AppError> {
     let content = file_util::read_file_content(file.path())?
         .replace("廿\"", "二十\"")
         .replace("卅", "三十");

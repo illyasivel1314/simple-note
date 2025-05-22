@@ -5,6 +5,7 @@ use std::backtrace::Backtrace;
 use std::panic;
 use std::panic::PanicHookInfo;
 use std::process::exit;
+use dotenvy::dotenv;
 use tauri::AppHandle;
 
 pub fn panic_handler(panic_info: &PanicHookInfo) {
@@ -26,7 +27,7 @@ pub fn panic_handler(panic_info: &PanicHookInfo) {
 #[tokio::main]
 async fn main() {
     // 加载 .env 文件中的变量
-    // dotenv::dotenv().ok();
+    dotenv().ok();
     // 异常回滚
     panic::set_hook(Box::new(panic_handler));
     // 运行tauri程序

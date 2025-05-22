@@ -16,6 +16,8 @@
         "title": "calendar",
         "width": 950,
         "height": 560,
+        "create": false,
+        "visible": false,
         "transparent": true,
         "decorations": false,
         "alwaysOnBottom": true,
@@ -23,6 +25,15 @@
         "resizable": false,
         "skipTaskbar": true,
         "shadow": true
+      },
+      {
+        "label": "splashscreen",
+        "url": "/splashscreen",
+        "width": 400,
+        "height": 300,
+        "center": true,
+        "resizable": false,
+        "decorations": false
       }
     ],
     "security": {

@@ -1,11 +1,11 @@
-use crate::configuration::database::interface::{DatabaseImpl, DatabaseUtil};
-use crate::configuration::database::schema::note_table;
+use crate::configuration::database::data::schema::note_table;
 use crate::configuration::utils::error_util::{AppError, DatabaseError};
 use diesel::prelude::*;
 use diesel::QueryId;
+use crate::configuration::database::index::acquire_database_pool;
 
 #[derive(Queryable, Selectable, QueryId)]
-#[diesel(table_name = crate::configuration::database::schema::note_table)]
+#[diesel(table_name = crate::configuration::database::data::schema::note_table)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct NoteTable {
     // 存储便笺的唯一编号
@@ -27,7 +27,7 @@ pub struct NoteTable {
 }
 
 #[derive(Insertable)]
-#[diesel(table_name = crate::configuration::database::schema::note_table)]
+#[diesel(table_name = crate::configuration::database::data::schema::note_table)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct NoteTableInsert {
     // 存储便笺的唯一编号
@@ -52,7 +52,7 @@ pub struct NoteTableInsert {
 pub fn save_note(note: NoteTableInsert) -> Result<usize, AppError> {
     let update_nums = diesel::insert_into(note_table::dsl::note_table)
         .values(&note)
-        .execute(&mut DatabaseUtil::default().acquire_connection())
+        .execute(&mut acquire_database_pool())
         .map_err(|err| DatabaseError::DatabaseOperationError(err))?;
     Ok(update_nums)
 }
@@ -66,7 +66,7 @@ pub fn update_note_with_content(key: String, content: String) -> Result<usize, A
     let filter = note_table::dsl::note_table.filter(note_table::key.eq(key));
     let updated_rows = diesel::update(filter)
         .set(note_table::content.eq(&content))
-        .execute(&mut DatabaseUtil::default().acquire_connection())
+        .execute(&mut acquire_database_pool())
         .map_err(|err| DatabaseError::DatabaseOperationError(err))?;
     Ok(updated_rows)
 }
@@ -80,7 +80,7 @@ pub fn count_note_by_key(id: &str) -> Result<i64, AppError> {
     let count = note_table::dsl::note_table
         .filter(note_table::key.eq(id))
         .count()
-        .get_result::<i64>(&mut DatabaseUtil::default().acquire_connection())
+        .get_result::<i64>(&mut acquire_database_pool())
         .map_err(|err| DatabaseError::DatabaseOperationError(err))?;
     Ok(count)
 }
@@ -95,7 +95,7 @@ pub fn acquire_note_by_timestamp(timestamp: i64) -> Result<Vec<NoteTable>, AppEr
         .filter(note_table::start_time.le(timestamp))
         .filter(note_table::end_time.ge(timestamp))
         .order_by(note_table::create_time)
-        .load::<NoteTable>(&mut DatabaseUtil::default().acquire_connection())
+        .load::<NoteTable>(&mut acquire_database_pool())
         .map_err(|err| DatabaseError::DatabaseOperationError(err))?;
     Ok(note_list)
 }
@@ -108,7 +108,7 @@ pub fn acquire_note_by_timestamp(timestamp: i64) -> Result<Vec<NoteTable>, AppEr
 pub fn delete_note_by_key(key: String) -> Result<usize, AppError> {
     let filter = note_table::dsl::note_table.filter(note_table::key.eq(&key));
     let count = diesel::delete(filter)
-        .execute(&mut DatabaseUtil::default().acquire_connection())
+        .execute(&mut acquire_database_pool())
         .map_err(|err| DatabaseError::DatabaseOperationError(err))?;
     Ok(count)
 }

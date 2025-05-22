@@ -1,7 +1,8 @@
-use crate::configuration::utils::error_util::FileError;
-use std::fs;
+use crate::configuration::utils::error_util::{FileError, TauriError};
+use std::{env, fs};
 use std::fs::{File, ReadDir};
 use std::path::{Path, PathBuf};
+use crate::configuration::utils::file_util;
 
 /**
  * @description: 获取文件夹列表
@@ -11,7 +12,7 @@ use std::path::{Path, PathBuf};
 pub fn acquire_file_list(path: &str) -> Result<ReadDir, FileError> {
     match fs::read_dir(path) {
         Ok(files) => Ok(files),
-        Err(err) => Err(FileError::FileDirNotFound(err.into())),
+        Err(err) => Err(FileError::FileDirNotFound(err)),
     }
 }
 
@@ -23,7 +24,7 @@ pub fn acquire_file_list(path: &str) -> Result<ReadDir, FileError> {
 pub fn read_file_content(path: PathBuf) -> Result<String, FileError> {
     match fs::read_to_string(path) {
         Ok(content) => Ok(content),
-        Err(err) => Err(FileError::FileReadError(err.into())),
+        Err(err) => Err(FileError::FileReadError(err)),
     }
 }
 
@@ -41,9 +42,9 @@ pub fn acquire_file_path(file_path: &str) -> &Path {
  * @author: illya
  * @date: 2025/5/14 18:51
  **/
-pub fn file_valid(file_path: &Path) -> bool {
+pub fn file_valid(file_path: &str) -> bool {
     // 如果文件存在
-    Path::exists(file_path)
+    Path::exists(acquire_file_path(file_path))
 }
 
 /**
@@ -59,4 +60,14 @@ pub fn create_file(database_path: &Path) -> Result<(), FileError> {
     // 创建文件
     File::create(&database_path).map_err(|err| FileError::FileCreateError(err))?;
     Ok(())
+}
+
+/**
+ * @description: 获取数据库url
+ * @author: illya 
+ * @date: 2025/5/22 15:40
+ **/
+pub fn acquire_database_url() -> String {
+    env::var("DATABASE_FILE_ADDRESS")
+        .unwrap_or(String::from("./resources/database.sqlite"))
 }

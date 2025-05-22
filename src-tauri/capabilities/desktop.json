@@ -9,6 +9,7 @@
     "main"
   ],
   "permissions": [
-    "positioner:default"
+    "positioner:default",
+    "core:window:allow-set-always-on-bottom"
   ]
 }

@@ -15,6 +15,9 @@ pub enum AppError {
 
     #[error("{0}")]
     DatabaseError(#[from] DatabaseError),
+
+    #[error("{0}")]
+    TauriError(#[from] TauriError),
 }
 
 #[derive(Serialize)]
@@ -25,6 +28,7 @@ pub enum AppErrorKind {
     TokioError(String),
     JsonError(String),
     DatabaseError(String),
+    TauriError(String)
 }
 
 impl Serialize for AppError {
@@ -38,6 +42,7 @@ impl Serialize for AppError {
             AppError::TokioError(_) => AppErrorKind::TokioError(error_message),
             AppError::JsonError(_) => AppErrorKind::JsonError(error_message),
             AppError::DatabaseError(_) => AppErrorKind::DatabaseError(error_message),
+            AppError::TauriError(_) => AppErrorKind::TauriError(error_message)
         };
         error_kind.serialize(serializer)
     }
@@ -85,4 +90,13 @@ pub enum DatabaseError {
 
     #[error("[[Error]] database operation error: {0}")]
     DatabaseOperationError(#[from] diesel::result::Error),
+}
+
+#[derive(Error, Debug)]
+pub enum TauriError {
+    #[error("[[Error]] tauri error: {0}")]
+    TauriSystemError(tauri::Error),
+    
+    #[error("[[Error]] tauri error: {0}")]
+    TauriFileError(tauri::Error),
 }

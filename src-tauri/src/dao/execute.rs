@@ -1,7 +1,7 @@
 use diesel::prelude::*;
 
 #[derive(Queryable, Selectable)]
-#[diesel(table_name = crate::configuration::database::schema::execute_table)]
+#[diesel(table_name = crate::configuration::database::data::schema::execute_table)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct ExecuteTable {
     pub id: i32,

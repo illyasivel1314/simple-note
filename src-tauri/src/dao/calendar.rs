@@ -1,9 +1,9 @@
-use crate::configuration::database::interface::{DatabaseImpl, DatabaseUtil};
-use crate::configuration::database::schema::calendar_table;
+use crate::configuration::database::data::schema::calendar_table;
 use diesel::prelude::*;
+use crate::configuration::database::index::acquire_database_pool;
 
 #[derive(Queryable, Selectable, Insertable)]
-#[diesel(table_name = crate::configuration::database::schema::calendar_table)]
+#[diesel(table_name = crate::configuration::database::data::schema::calendar_table)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct CalendarTable {
     // 日期字符串
@@ -32,7 +32,7 @@ pub struct CalendarTable {
 pub fn acquire_holidays(list: Vec<String>) -> Vec<CalendarTable> {
     calendar_table::dsl::calendar_table
         .filter(calendar_table::date.eq_any(list))
-        .load::<CalendarTable>(&mut DatabaseUtil::default().acquire_connection())
+        .load::<CalendarTable>(&mut acquire_database_pool())
         .expect("Error loading holidays")
 }
 
@@ -45,7 +45,7 @@ pub fn acquire_holidays_within(start: String, end: String) -> Vec<CalendarTable>
     calendar_table::dsl::calendar_table
         .filter(calendar_table::date.ge(start))
         .filter(calendar_table::date.le(end))
-        .load::<CalendarTable>(&mut DatabaseUtil::default().acquire_connection())
+        .load::<CalendarTable>(&mut acquire_database_pool())
         .expect("Error loading holidays")
 }
 
@@ -57,7 +57,7 @@ pub fn acquire_holidays_within(start: String, end: String) -> Vec<CalendarTable>
 pub fn insert_holiday_list(list: Vec<CalendarTable>) -> usize {
     diesel::insert_into(calendar_table::dsl::calendar_table)
         .values(&list)
-        .execute(&mut DatabaseUtil::default().acquire_connection())
+        .execute(&mut acquire_database_pool())
         .expect("Error saving holiday table")
 }
 
@@ -68,6 +68,6 @@ pub fn insert_holiday_list(list: Vec<CalendarTable>) -> usize {
  **/
 pub fn delete_holiday() -> usize {
     diesel::delete(calendar_table::dsl::calendar_table)
-        .execute(&mut DatabaseUtil::default().acquire_connection())
+        .execute(&mut acquire_database_pool())
         .expect("Error deleting holidays")
 }

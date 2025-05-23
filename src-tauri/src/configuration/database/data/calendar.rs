@@ -1,4 +1,4 @@
-use crate::configuration::utils::error_util::{AppError, FileError, JsonError, TokioError};
+use crate::configuration::utils::error_util::{AppError, FileError, JsonError};
 use crate::configuration::utils::file_util;
 use crate::configuration::utils::time_util;
 use crate::dao;
@@ -15,7 +15,7 @@ struct CalendarJson {
 }
 
 impl CalendarJson {
-    pub fn into_holiday(&self) -> Vec<CalendarTable> {
+    pub fn conversion_holiday(&self) -> Vec<CalendarTable> {
         let mut holiday_list = vec![];
         for data in &self.data {
             for days in &data.days {
@@ -96,7 +96,7 @@ pub fn update_holiday_to_database() -> Result<(), AppError> {
     let mut holiday_table_list = vec![];
     for file_result in file_list {
         let file = file_result.map_err(|err| FileError::FileTraverseError(err))?;
-        holiday_table_list.extend(acquire_holiday(file)?.into_holiday());
+        holiday_table_list.extend(acquire_holiday(file)?.conversion_holiday());
     }
     
     // 先删除表中所有数据
@@ -118,5 +118,5 @@ fn acquire_holiday(file: DirEntry) -> Result<CalendarJson, AppError> {
         .replace("卅", "三十");
     let holiday = serde_json::from_str::<CalendarJson>(content.as_str())
         .map_err(|err| JsonError::JsonTransformError(err))?;
-    Ok((holiday))
+    Ok(holiday)
 }

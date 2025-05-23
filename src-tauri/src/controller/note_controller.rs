@@ -42,6 +42,6 @@ pub async fn acquire_note(timestamp: i64) -> Result<Vec<NoteVO>, AppError> {
  **/
 #[tauri::command]
 pub async fn delete_note(key: String) -> Result<(), AppError> {
-    tokio::spawn(async move { note_service::delete_note(key) });
+    tauri::async_runtime::spawn(async move { note_service::delete_note(key) });
     Ok(())
 }

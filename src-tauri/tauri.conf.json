@@ -13,7 +13,13 @@
     "windows": [
       {
         "label": "main",
+        "title": "main",
+        "visible": false
+      },
+      {
+        "label": "calendar",
         "title": "calendar",
+        "url": "/calendar",
         "width": 950,
         "height": 560,
         "create": false,
@@ -29,9 +35,10 @@
       {
         "label": "splashscreen",
         "url": "/splashscreen",
-        "width": 400,
-        "height": 300,
+        "width": 600,
+        "height": 350,
         "center": true,
+        "visible": true,
         "resizable": false,
         "decorations": false
       }

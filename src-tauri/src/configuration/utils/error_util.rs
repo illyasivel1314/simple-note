@@ -8,9 +8,6 @@ pub enum AppError {
     FileError(#[from] FileError),
 
     #[error("{0}")]
-    TokioError(#[from] TokioError),
-
-    #[error("{0}")]
     JsonError(#[from] JsonError),
 
     #[error("{0}")]
@@ -25,7 +22,6 @@ pub enum AppError {
 #[serde(rename_all = "camelCase")]
 pub enum AppErrorKind {
     FileError(String),
-    TokioError(String),
     JsonError(String),
     DatabaseError(String),
     TauriError(String)
@@ -39,7 +35,6 @@ impl Serialize for AppError {
         let error_message = self.to_string();
         let error_kind = match self {
             AppError::FileError(_) => AppErrorKind::FileError(error_message),
-            AppError::TokioError(_) => AppErrorKind::TokioError(error_message),
             AppError::JsonError(_) => AppErrorKind::JsonError(error_message),
             AppError::DatabaseError(_) => AppErrorKind::DatabaseError(error_message),
             AppError::TauriError(_) => AppErrorKind::TauriError(error_message)
@@ -65,11 +60,6 @@ pub enum FileError {
     FileCreateError(std::io::Error),
 }
 
-#[derive(Error, Debug)]
-pub enum TokioError {
-    #[error("[[Error]] tokio runtime error: {0}")]
-    TokioRunTimeError(#[from] tokio::task::JoinError),
-}
 
 #[derive(Error, Debug)]
 pub enum JsonError {

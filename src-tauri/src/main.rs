@@ -24,8 +24,7 @@ pub fn panic_handler(panic_info: &PanicHookInfo) {
     exit(1);
 }
 
-#[tokio::main]
-async fn main() {
+fn main() {
     // 加载 .env 文件中的变量
     dotenv().ok();
     // 异常回滚

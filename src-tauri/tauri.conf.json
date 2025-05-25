@@ -55,6 +55,10 @@
       "icons/app16.svg",
       "icons/app32.svg",
       "icons/app48.svg"
+    ],
+    "resources": [
+      "resources/holiday/*",
+      "resources/migrations/**/*"
     ]
   }
 }

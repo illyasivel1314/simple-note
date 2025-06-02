@@ -69,19 +69,12 @@ import { LeftOutlined, RightOutlined, DownOutlined } from '@ant-design/icons-vue
 import locale from 'ant-design-vue/es/date-picker/locale/zh_CN';
 import { useStore } from 'vuex';
 import { acquireCalendar } from '../request';
+import { Calendar } from '../request/interface';
 
 /* 基础数据  */
 // 当前日历所显示的日期
 const current_date = ref<Dayjs>(dayjs('2000-1-1'));
-// 日历内容接口
-interface Calendar {
-  calendar: string,         /* 日期 */
-  solar_calendar: string,   /* 阳历day */
-  lunar_calendar: string,   /* 农历day */
-  rest_day_valid: number | null,  /* 是否休息日（1-是, 0-否） */
-  within_month: boolean,    /* 是否是当月日期（1-是, 0-否） */
-  todo_item: number,        /* 待做事项数 */
-}
+
 // 日历显示内容 
 const calendar_content = ref<Map<string, Calendar>>();
 // store变量
@@ -130,12 +123,8 @@ const getCalendarContent = (value: Dayjs): Calendar | undefined => {
 }
 
 /* 对外接口 */
-const changeCalendarContent = (timestamp: number) => {
-  acquireCalendar(timestamp).then((result: Map<string, Calendar>) => {
-    calendar_content.value = result;
-  }).catch((err: any) => {
-    console.log(err);
-  });
+const changeCalendarContent = async (timestamp: number) => {
+  calendar_content.value = await acquireCalendar(timestamp);
 }
 
 </script>

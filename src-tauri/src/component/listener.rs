@@ -1,12 +1,13 @@
+use crate::component::handler::{InitialTaskManger, InitialTaskMangerType};
+use crate::component::windows::{create_calendar_window, create_window_by_config};
+use log::info;
 use std::sync::{Arc, Condvar, Mutex};
 use std::thread::sleep;
 use std::time::Duration;
-use log::info;
-use tauri::{AppHandle, Emitter, Listener, Manager, Runtime};
+use diesel::IntoSql;
 use tauri::async_runtime::Runtime::Tokio;
+use tauri::{AppHandle, Emitter, Listener, Manager, Runtime};
 use tauri_plugin_positioner::{Position, WindowExt};
-use crate::component::handler::{InitialTaskManger, InitialTaskMangerType};
-use crate::component::windows::create_window_by_config;
 
 /**
  * @description: 用于监听初始化是否完成
@@ -31,12 +32,8 @@ pub fn create_initialization_listener(app: AppHandle) {
         // 创建日历窗口
         let app_async_calendar = app_listen.clone();
         tauri::async_runtime::spawn(async move {
-            info!("Start creating the splash screen window");
-            let window = create_window_by_config(app_async_calendar, "calendar").await;
-            window.move_window(Position::TopRight).unwrap();    // 定位到右上角
-            window.set_always_on_bottom(true).unwrap();         // 永远在最低下
-            window.show().unwrap();
-            info!("The splash screen window creating successfully.");
+            // 创建日历窗口
+            create_calendar_window(app_async_calendar).await;
         });
     });
 

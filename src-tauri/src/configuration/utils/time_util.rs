@@ -1,5 +1,5 @@
 use chinese_lunisolar_calendar::{LunarDay, LunarMonth, LunisolarDate};
-use chrono::{Datelike, Duration, FixedOffset, NaiveDate, TimeZone, Utc, Weekday};
+use chrono::{Datelike, Duration, FixedOffset, NaiveDate, NaiveDateTime, TimeZone, Utc, Weekday};
 use std::cell::LazyCell;
 use std::collections::HashMap;
 use tyme4rs::tyme::solar::{SolarTerm, SOLAR_TERM_NAMES};
@@ -53,6 +53,14 @@ pub fn acquire_datetime_by_str(date: &str) -> NaiveDate {
     NaiveDate::parse_from_str(date, YEAR_MONTH_DAY).expect("Could not parse date")
 }
 
+/**
+ * @description: 获取当前时间戳
+ * @author: illya 
+ * @date: 2025/5/31 16:00
+ **/
+pub fn acquire_now_timestamp() -> i64 {
+    Utc::now().with_timezone(&OFFSET).timestamp_millis()
+}
 /**
  * @description: 获取当前时间
  * @author: illya

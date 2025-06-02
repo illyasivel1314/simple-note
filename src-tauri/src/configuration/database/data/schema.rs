@@ -27,12 +27,12 @@ diesel::table! {
         key -> Char,
         content -> VarChar,
         create_time -> BigInt,
-        #[sql_name = "type"]
-        category -> Integer,
+        tag_type -> Integer,
         start_time -> BigInt,
-        end_time -> Nullable<BigInt>,
-        cycle -> Nullable<Char>,
-        version -> Integer,
+        end_time -> BigInt,
+        finished_valid -> Integer,
+        reminder_valid -> Integer,
+        reminder_time -> Nullable<BigInt>,
     }
 }
 

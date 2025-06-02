@@ -1,15 +1,15 @@
-use std::thread::sleep;
-use std::time::Duration;
-use log::info;
-use tauri::{AppHandle, Emitter, Manager, Runtime};
-use tauri::menu::{Menu, MenuItem};
-use tauri::plugin::Builder;
-use tauri::tray::{MouseButton, TrayIconBuilder, TrayIconEvent};
 use crate::component::listener::create_initialization_emit;
 use crate::configuration::database::data::calendar::update_holiday_to_database;
 use crate::configuration::database::index::system_database_init;
-use crate::configuration::utils::{file_util, time_util};
 use crate::configuration::utils::error_util::AppError;
+use crate::configuration::utils::{file_util, time_util};
+use log::info;
+use std::thread::sleep;
+use std::time::Duration;
+use tauri::menu::{Menu, MenuItem};
+use tauri::plugin::Builder;
+use tauri::tray::{MouseButton, TrayIconBuilder, TrayIconEvent};
+use tauri::{AppHandle, Emitter, Manager, Runtime};
 
 /**
  * @description: 日志插件
@@ -38,11 +38,7 @@ pub fn tauri_plugin_log_init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
             let line = record.line().unwrap_or(0);
             out.finish(format_args!(
                 "{} [{}] [{}:{}] {}",
-                now,
-                level,
-                file,
-                line,
-                message
+                now, level, file, line, message
             ))
         })
         .build();
@@ -66,7 +62,7 @@ pub fn tauri_plugin_single(app: &AppHandle, _args: Vec<String>, _cwd: String) {
 
 /**
  * @description: 第一次运行，初始化数据库插件
- * @author: illya 
+ * @author: illya
  * @date: 2025/5/22 14:53
  **/
 pub fn tauri_plugin_database_init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
@@ -74,14 +70,9 @@ pub fn tauri_plugin_database_init<R: Runtime>() -> tauri::plugin::TauriPlugin<R>
         .setup(|app, _api| {
             let app_async = app.clone();
             tauri::async_runtime::spawn(async move {
-                // tokio::time::sleep(Duration::from_secs(10)).await;
                 database_init().await.unwrap();
                 // 将任务保存至manage列表中
                 create_initialization_emit(app_async).await;
-                // app_async.emit("initialization", "").unwrap();
-                // app_async.manage(|app_handle: AppHandle| {
-                //     app_handle.emit("initialization", "").unwrap();
-                // });
             });
             Ok(())
         })
@@ -106,7 +97,7 @@ async fn database_init() -> Result<(), AppError> {
 
 /**
  * @description: 托盘插件
- * @author: illya 
+ * @author: illya
  * @date: 2025/5/22 15:15
  **/
 pub fn tauri_plugin_tray<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
@@ -119,10 +110,12 @@ pub fn tauri_plugin_tray<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
 }
 /**
  * @description: 托盘图标以及菜单插件
- * @author: illya 
+ * @author: illya
  * @date: 2025/5/22 14:47
  **/
-fn create_tauri_tray_menu<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error>> {
+fn create_tauri_tray_menu<R: Runtime>(
+    app: &AppHandle<R>,
+) -> Result<(), Box<dyn std::error::Error>> {
     info!("Tauri tray plugin is being initialized");
     let quit_menu = MenuItem::with_id(app, "quit", "退出", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&quit_menu])?;

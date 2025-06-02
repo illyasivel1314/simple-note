@@ -1,8 +1,8 @@
 use crate::configuration::utils::error_util::{FileError, TauriError};
-use std::{env, fs};
+use crate::configuration::utils::file_util;
 use std::fs::{File, ReadDir};
 use std::path::{Path, PathBuf};
-use crate::configuration::utils::file_util;
+use std::{env, fs};
 
 /**
  * @description: 获取文件夹列表
@@ -64,10 +64,18 @@ pub fn create_file(database_path: &Path) -> Result<(), FileError> {
 
 /**
  * @description: 获取数据库url
- * @author: illya 
+ * @author: illya
  * @date: 2025/5/22 15:40
  **/
 pub fn acquire_database_url() -> String {
-    env::var("DATABASE_FILE_ADDRESS")
-        .unwrap_or(String::from("./resources/database.sqlite"))
+    env::var("DATABASE_FILE_ADDRESS").unwrap_or(String::from("./resources/database.sqlite"))
+}
+
+/**
+ * @description: 移除某个文件
+ * @author: illya 
+ * @date: 2025/6/1 15:41
+ **/
+pub fn delete_file(database_path: &Path) -> Result<(), FileError> {
+    fs::remove_file(database_path).map_err(|err| FileError::FileDeleteError(err))
 }

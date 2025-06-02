@@ -1,6 +1,6 @@
 <template>
   <div class="splash">
-    <img src="/public/loading.gif" :style="{ width: '350px', height: '350px' }" alt="数据加载中，请稍候..." draggable="false">
+    <img src="/loading.gif" :style="{ width: '350px', height: '350px' }" alt="数据加载中，请稍候..." draggable="false">
   </div>
 </template>
 

@@ -20,7 +20,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
-    
+    "types": ["vue-router"],
     "paths": {
       "vuex": ["./node_modules/vuex/types"]
     }

@@ -1,12 +1,14 @@
 use crate::configuration::database::data::schema::note_table;
+use crate::configuration::database::index::acquire_database_pool;
 use crate::configuration::utils::error_util::{AppError, DatabaseError};
 use diesel::prelude::*;
 use diesel::QueryId;
-use crate::configuration::database::index::acquire_database_pool;
 
-#[derive(Queryable, Selectable, QueryId)]
+#[derive(Queryable, Selectable, QueryId, Insertable, AsChangeset)]
 #[diesel(table_name = crate::configuration::database::data::schema::note_table)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+#[diesel(treat_none_as_null = true)]
+#[derive(Debug, Default)]
 pub struct NoteTable {
     // 存储便笺的唯一编号
     pub key: String,
@@ -14,34 +16,20 @@ pub struct NoteTable {
     pub content: String,
     // 创建时间
     pub create_time: i64,
-    // 1-单次, 2-周期, 3-循环
-    pub category: i32,
-    // 便笺开始时间
-    pub start_time: i64,
-    // 便笺结束时间
-    pub end_time: Option<i64>,
-    // 循环周期
-    pub cycle: Option<String>,
-    // 版本号
-    pub version: i32,
-}
 
-#[derive(Insertable)]
-#[diesel(table_name = crate::configuration::database::data::schema::note_table)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct NoteTableInsert {
-    // 存储便笺的唯一编号
-    pub key: String,
-    // 便笺内容
-    pub content: String,
-    // 创建时间
-    pub create_time: i64,
+    // 0-单次, 1-周期
+    pub tag_type: i32,
     // 便笺开始时间
     pub start_time: i64,
     // 便笺结束时间
-    pub end_time: Option<i64>,
-    // 版本号
-    pub version: i32,
+    pub end_time: i64,
+
+    // 是否完成
+    pub finished_valid: i32,
+    // 是否提醒
+    pub reminder_valid: i32,
+    // 提醒时间
+    pub reminder_time: Option<i64>
 }
 
 /**
@@ -49,7 +37,7 @@ pub struct NoteTableInsert {
  * @author: illya
  * @date: 2025/5/12 18:19
  **/
-pub fn save_note(note: NoteTableInsert) -> Result<usize, AppError> {
+pub fn save_note(note: NoteTable) -> Result<usize, AppError> {
     let update_nums = diesel::insert_into(note_table::dsl::note_table)
         .values(&note)
         .execute(&mut acquire_database_pool())
@@ -72,17 +60,41 @@ pub fn update_note_with_content(key: String, content: String) -> Result<usize, A
 }
 
 /**
+ * @description: 更新便笺
+ * @author: illya
+ * @date: 2025/6/1 13:55
+ **/
+pub fn update_note(note: NoteTable) -> Result<usize, AppError> {
+    let filter = note_table::dsl::note_table.find(note.key.clone());
+    let updated_rows = diesel::update(filter)
+        .set(&note)
+        .execute(&mut acquire_database_pool())
+        .map_err(|err| DatabaseError::DatabaseOperationError(err))?;
+    Ok(updated_rows)
+}
+
+pub fn update_note_finished(key: String, finish: i32) -> Result<usize, AppError> {
+    let filter = note_table::dsl::note_table.filter(note_table::key.eq(key));
+    let updated_rows = diesel::update(filter)
+        .set(note_table::finished_valid.eq(&finish))
+        .execute(&mut acquire_database_pool())
+        .map_err(|err| DatabaseError::DatabaseOperationError(err))?;
+    Ok(updated_rows)
+}
+
+/**
  * @description: 统计key对应的数量
  * @author: illya
  * @date: 2025/5/13 00:02
  **/
-pub fn count_note_by_key(id: &str) -> Result<i64, AppError> {
-    let count = note_table::dsl::note_table
+pub fn acquire_note_by_key(id: &str) -> Result<Option<NoteTable>, AppError> {
+    let note_table = note_table::dsl::note_table
         .filter(note_table::key.eq(id))
-        .count()
-        .get_result::<i64>(&mut acquire_database_pool())
+        .first::<NoteTable>(&mut acquire_database_pool())
+        .optional()
         .map_err(|err| DatabaseError::DatabaseOperationError(err))?;
-    Ok(count)
+
+    Ok(note_table)
 }
 
 /**

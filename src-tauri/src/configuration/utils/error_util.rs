@@ -24,7 +24,7 @@ pub enum AppErrorKind {
     FileError(String),
     JsonError(String),
     DatabaseError(String),
-    TauriError(String)
+    TauriError(String),
 }
 
 impl Serialize for AppError {
@@ -37,7 +37,7 @@ impl Serialize for AppError {
             AppError::FileError(_) => AppErrorKind::FileError(error_message),
             AppError::JsonError(_) => AppErrorKind::JsonError(error_message),
             AppError::DatabaseError(_) => AppErrorKind::DatabaseError(error_message),
-            AppError::TauriError(_) => AppErrorKind::TauriError(error_message)
+            AppError::TauriError(_) => AppErrorKind::TauriError(error_message),
         };
         error_kind.serialize(serializer)
     }
@@ -58,8 +58,9 @@ pub enum FileError {
     FileDirCreateError(std::io::Error),
     #[error("[[Error]] file create error: {0}")]
     FileCreateError(std::io::Error),
+    #[error("[[Error]] file delete error: {0}")]
+    FileDeleteError(std::io::Error),
 }
-
 
 #[derive(Error, Debug)]
 pub enum JsonError {
@@ -86,7 +87,10 @@ pub enum DatabaseError {
 pub enum TauriError {
     #[error("[[Error]] tauri error: {0}")]
     TauriSystemError(tauri::Error),
-    
+
     #[error("[[Error]] tauri error: {0}")]
     TauriFileError(tauri::Error),
+    
+    #[error("[[Error]] tauri content is null ")]
+    TauriResultNull(String)
 }

@@ -27,7 +27,7 @@
         "transparent": true,
         "decorations": false,
         "alwaysOnBottom": true,
-        "devtools": false,
+        "devtools": true,
         "resizable": false,
         "skipTaskbar": true,
         "shadow": true

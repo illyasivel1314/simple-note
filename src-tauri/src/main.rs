@@ -1,11 +1,11 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use dotenvy::dotenv;
 use std::backtrace::Backtrace;
 use std::panic;
 use std::panic::PanicHookInfo;
 use std::process::exit;
-use dotenvy::dotenv;
 use tauri::AppHandle;
 
 pub fn panic_handler(panic_info: &PanicHookInfo) {

@@ -13,11 +13,12 @@ CREATE TABLE note_table (
     "key" CHAR NOT NULL PRIMARY KEY, /* 存储便笺的唯一编号 */
     content VARCHAR NOT NULL, /* 便笺内容 */
     create_time BIGINT NOT NULL, /* 创建时间（排序标准）*/
-    "type" INTEGER DEFAULT (1) NOT NULL, /* 1-单次, 2-周期, 3-循环 */
+    tag_type INTEGER DEFAULT (0) NOT NULL, /* 0-单次, 1-周期 */
     start_time BIGINT NOT NULL, /* 便笺开始时间 */
     end_time BIGINT NOT NULL, /* 便笺结束时间 */
-    cycle CHAR, /* 循环周期 */
-    version INTEGER DEFAULT (1) NOT NULL /* 版本号 */
+    finished_valid INTEGER DEFAULT (0) NOT NULL, /* 0-未完成, 1-已完成 */
+    reminder_valid INTEGER DEFAULT (0) NOT NULL, /* 0-不提醒, 1-提醒 */
+    reminder_time end_time BIGINT NULL /* 提醒时间 */
 );
 
 CREATE TABLE execute_table (

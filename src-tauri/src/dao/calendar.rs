@@ -1,6 +1,6 @@
 use crate::configuration::database::data::schema::calendar_table;
-use diesel::prelude::*;
 use crate::configuration::database::index::acquire_database_pool;
+use diesel::prelude::*;
 
 #[derive(Queryable, Selectable, Insertable)]
 #[diesel(table_name = crate::configuration::database::data::schema::calendar_table)]

@@ -1,5 +1,5 @@
 use log::info;
-use tauri::{AppHandle, Manager, WebviewWindow};
+use tauri::{AppHandle, WebviewWindow};
 use tauri_plugin_positioner::{Position, WindowExt};
 
 /**
@@ -26,7 +26,7 @@ pub async fn create_window_by_config(app: AppHandle, window_label: &str) -> Webv
 
 /**
  * @description: 创建日历窗口
- * @author: illya 
+ * @author: illya
  * @date: 2025/5/25 19:13
  **/
 pub async fn create_calendar_window(app: AppHandle) -> WebviewWindow {

@@ -1,6 +1,7 @@
 use crate::configuration::database::data::schema::calendar_table;
 use crate::configuration::database::index::acquire_database_pool;
 use diesel::prelude::*;
+use crate::configuration::utils::error_util::{AppError, DatabaseError};
 
 #[derive(Queryable, Selectable, Insertable)]
 #[diesel(table_name = crate::configuration::database::data::schema::calendar_table)]
@@ -25,28 +26,17 @@ pub struct CalendarTable {
 }
 
 /**
- * @description: 查询在list中数据
- * @author: illya
- * @date: 2025/5/12 17:18
- **/
-pub fn acquire_holidays(list: Vec<String>) -> Vec<CalendarTable> {
-    calendar_table::dsl::calendar_table
-        .filter(calendar_table::date.eq_any(list))
-        .load::<CalendarTable>(&mut acquire_database_pool())
-        .expect("Error loading holidays")
-}
-
-/**
  * @description: 查询范围内的数据
  * @author: illya
  * @date: 2025/5/14 19:40
  **/
-pub fn acquire_holidays_within(start: String, end: String) -> Vec<CalendarTable> {
-    calendar_table::dsl::calendar_table
+pub fn acquire_holidays_within(start: String, end: String) -> Result<Vec<CalendarTable>, AppError> {
+    let list = calendar_table::dsl::calendar_table
         .filter(calendar_table::date.ge(start))
         .filter(calendar_table::date.le(end))
         .load::<CalendarTable>(&mut acquire_database_pool())
-        .expect("Error loading holidays")
+        .map_err(|err| DatabaseError::DatabaseOperationError(err))?;
+    Ok(list)
 }
 
 /**
@@ -54,11 +44,12 @@ pub fn acquire_holidays_within(start: String, end: String) -> Vec<CalendarTable>
  * @author: illya
  * @date: 2025/5/14 17:37
  **/
-pub fn insert_holiday_list(list: Vec<CalendarTable>) -> usize {
-    diesel::insert_into(calendar_table::dsl::calendar_table)
+pub fn insert_holiday_list(list: Vec<CalendarTable>) -> Result<usize, AppError> {
+    let num = diesel::insert_into(calendar_table::dsl::calendar_table)
         .values(&list)
         .execute(&mut acquire_database_pool())
-        .expect("Error saving holiday table")
+        .map_err(|err| DatabaseError::DatabaseOperationError(err))?;
+    Ok(num)
 }
 
 /**
@@ -66,8 +57,9 @@ pub fn insert_holiday_list(list: Vec<CalendarTable>) -> usize {
  * @author: illya
  * @date: 2025/5/14 17:46
  **/
-pub fn delete_holiday() -> usize {
-    diesel::delete(calendar_table::dsl::calendar_table)
+pub fn delete_holiday() -> Result<usize, AppError> {
+    let num = diesel::delete(calendar_table::dsl::calendar_table)
         .execute(&mut acquire_database_pool())
-        .expect("Error deleting holidays")
+        .map_err(|err| DatabaseError::DatabaseOperationError(err))?;
+    Ok(num)
 }

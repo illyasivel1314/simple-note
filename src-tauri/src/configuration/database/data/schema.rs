@@ -1,11 +1,9 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    execute_table (id) {
-        id -> Integer,
+    execute_table (key) {
         key -> Char,
         timestamp -> BigInt,
-        finished -> Integer,
     }
 }
 

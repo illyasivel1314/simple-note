@@ -4,8 +4,7 @@ use crate::configuration::utils::file_util;
 use diesel::r2d2::ConnectionManager;
 use diesel::SqliteConnection;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
-use r2d2::{Error, Pool, PooledConnection};
-use std::env;
+use r2d2::Pool;
 use std::sync::LazyLock;
 
 // sql文件地址

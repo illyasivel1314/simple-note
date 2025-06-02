@@ -1,13 +1,12 @@
-use crate::component::handler::{InitialTaskManger, InitialTaskMangerType};
-use crate::component::windows::{create_calendar_window, create_window_by_config};
+use crate::component::handler::{InitialTaskMangerType};
+use crate::component::windows::{create_calendar_window};
 use log::info;
-use std::sync::{Arc, Condvar, Mutex};
 use std::thread::sleep;
 use std::time::Duration;
-use diesel::IntoSql;
-use tauri::async_runtime::Runtime::Tokio;
+use chrono::Utc;
 use tauri::{AppHandle, Emitter, Listener, Manager, Runtime};
-use tauri_plugin_positioner::{Position, WindowExt};
+use tauri_plugin_notification::NotificationExt;
+use crate::service::{execute_service, note_service};
 
 /**
  * @description: 用于监听初始化是否完成
@@ -50,4 +49,40 @@ pub async fn create_initialization_emit<R: Runtime>(app: AppHandle<R>) {
         manager = condvar.wait(manager).unwrap();
     }
     app.emit("initialization", "").unwrap()
+}
+
+/**
+ * @description: 时间轮算法，每隔5分钟触发一次事件
+ * @author: illya 
+ * @date: 2025/6/2 22:15
+ **/
+pub fn create_timing_wheel(app: AppHandle) {
+    tauri::async_runtime::spawn(async move {
+        loop {
+            // 获取当前时间的秒级时间戳
+            let mut now = Utc::now().timestamp();
+            info!("Current wheel: {}", now);
+            if now % 300 != 0 {
+                tokio::time::sleep(Duration::from_secs((300 - now % 300) as u64)).await;
+                now = Utc::now().timestamp();
+            }
+            let app_async = app.clone();
+            tauri::async_runtime::spawn(async move {
+                info!("acquire reminder information");
+                let start_timestamp = now * 1000;
+                let end_timestamp = start_timestamp + 59999;
+                let list = execute_service::acquire_execute_within(start_timestamp, end_timestamp).unwrap();
+                info!("acquire reminder information successfully, list: {:?}", list);
+                for value in list {
+                    let note_table = note_service::acquire_note_by_key(&value.key).unwrap();
+                    if let Some(note) = note_table {
+                        app_async.notification().builder().title("simple-note").body(note.content).show().unwrap();
+                        info!("The push message was successful. key: {}", note.key);
+                    }
+                }
+            });
+            // 暂停5分钟
+            tokio::time::sleep(Duration::from_secs(300)).await;
+        }
+    });
 }

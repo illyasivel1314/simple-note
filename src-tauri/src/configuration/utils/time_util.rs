@@ -1,8 +1,7 @@
-use chinese_lunisolar_calendar::{LunarDay, LunarMonth, LunisolarDate};
-use chrono::{Datelike, Duration, FixedOffset, NaiveDate, NaiveDateTime, TimeZone, Utc, Weekday};
+use chrono::{Datelike, Duration, FixedOffset, NaiveDate, TimeZone, Utc, Weekday};
 use std::cell::LazyCell;
 use std::collections::HashMap;
-use tyme4rs::tyme::solar::{SolarTerm, SOLAR_TERM_NAMES};
+use tyme4rs::tyme::solar::SOLAR_TERM_NAMES;
 
 // 年月日
 pub const YEAR_MONTH_DAY: &str = "%Y-%m-%d";
@@ -55,7 +54,7 @@ pub fn acquire_datetime_by_str(date: &str) -> NaiveDate {
 
 /**
  * @description: 获取当前时间戳
- * @author: illya 
+ * @author: illya
  * @date: 2025/5/31 16:00
  **/
 pub fn acquire_now_timestamp() -> i64 {
@@ -140,53 +139,6 @@ pub fn acquire_weekday(naive_date: NaiveDate) -> i64 {
  **/
 pub fn same_month_valid(reference: NaiveDate, control: NaiveDate) -> bool {
     reference.month() == control.month()
-}
-
-/**
- * @description: 获取农历日期
- * @author: illya
- * @date: 2025/5/13 16:50
- **/
-pub fn acquire_lunar(naive_date: NaiveDate) -> LunisolarDate {
-    LunisolarDate::from_date(naive_date).unwrap()
-}
-
-/**
- * @description: 获取农历年
- * @author: illya
- * @date: 2025/5/13 16:56
- **/
-pub fn acquire_lunar_year(lunar_date: LunisolarDate) -> String {
-    lunar_date.to_lunar_year().to_string()
-}
-
-/**
- * @description: 获取农历月，并判断是否是第一天
- * @author: illya
- * @date: 2025/5/13 16:56
- **/
-pub fn acquire_lunar_month(lunar_month: LunisolarDate) -> (String, bool) {
-    let first_month_in_year = match lunar_month.to_lunar_month() {
-        LunarMonth::First => true,
-        _ => false,
-    };
-    (
-        lunar_month.to_lunar_month().to_string(),
-        first_month_in_year,
-    )
-}
-
-/**
- * @description: 获取农历日期，并判断是否是第一天
- * @author: illya
- * @date: 2025/5/13 16:56
- **/
-pub fn acquire_lunar_day(lunar_day: LunisolarDate) -> (String, bool) {
-    let first_day_in_month = match lunar_day.to_lunar_day() {
-        LunarDay::First => true,
-        _ => false,
-    };
-    (lunar_day.to_lunar_day().to_string(), first_day_in_month)
 }
 
 /**

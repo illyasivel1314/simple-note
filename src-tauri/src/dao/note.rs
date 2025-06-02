@@ -29,7 +29,7 @@ pub struct NoteTable {
     // 是否提醒
     pub reminder_valid: i32,
     // 提醒时间
-    pub reminder_time: Option<i64>
+    pub reminder_time: Option<i64>,
 }
 
 /**
@@ -43,20 +43,6 @@ pub fn save_note(note: NoteTable) -> Result<usize, AppError> {
         .execute(&mut acquire_database_pool())
         .map_err(|err| DatabaseError::DatabaseOperationError(err))?;
     Ok(update_nums)
-}
-
-/**
- * @description: 更新便笺内容
- * @author: illya
- * @date: 2025/5/13 00:19
- **/
-pub fn update_note_with_content(key: String, content: String) -> Result<usize, AppError> {
-    let filter = note_table::dsl::note_table.filter(note_table::key.eq(key));
-    let updated_rows = diesel::update(filter)
-        .set(note_table::content.eq(&content))
-        .execute(&mut acquire_database_pool())
-        .map_err(|err| DatabaseError::DatabaseOperationError(err))?;
-    Ok(updated_rows)
 }
 
 /**

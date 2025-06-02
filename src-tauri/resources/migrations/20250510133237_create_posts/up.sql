@@ -22,10 +22,8 @@ CREATE TABLE note_table (
 );
 
 CREATE TABLE execute_table (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "key" TEXT NOT NULL, /* 存储便笺的唯一编号 */
-    timestamp BIGINT NOT NULL, /* 操作的日期字符串 */
-    finished INTEGER DEFAULT (0) NOT NULL /* 0-未完成,1-完成 */
+    "key" TEXT NOT NULL PRIMARY KEY, /* 存储便笺的唯一编号 */
+    timestamp BIGINT NOT NULL /* 操作的日期字符串 */
 );
 
 

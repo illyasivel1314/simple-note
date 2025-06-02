@@ -1,5 +1,4 @@
-use crate::configuration::utils::error_util::{FileError, TauriError};
-use crate::configuration::utils::file_util;
+use crate::configuration::utils::error_util::FileError;
 use std::fs::{File, ReadDir};
 use std::path::{Path, PathBuf};
 use std::{env, fs};
@@ -73,7 +72,7 @@ pub fn acquire_database_url() -> String {
 
 /**
  * @description: 移除某个文件
- * @author: illya 
+ * @author: illya
  * @date: 2025/6/1 15:41
  **/
 pub fn delete_file(database_path: &Path) -> Result<(), FileError> {

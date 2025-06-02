@@ -3,6 +3,7 @@ use crate::configuration::utils::time_util::{HOLIDAY_MAP, YEAR_MONTH_DAY};
 use crate::dao::calendar::acquire_holidays_within;
 use crate::entity::calendar::CalendarDto;
 use chrono::{Datelike, Duration, NaiveDate};
+use crate::configuration::utils::error_util::AppError;
 
 /**
  * @description: 获取日历开始、结束日期、月初时间
@@ -32,7 +33,7 @@ pub fn acquire_calendar(
     timestamp: i64,
     start_timestamp: NaiveDate,
     end_timestamp: NaiveDate,
-) -> Vec<CalendarDto> {
+) -> Result<Vec<CalendarDto>, AppError> {
     // 当前日期
     let date_time_month = {
         let month = time_util::acquire_datetime(timestamp).month();
@@ -46,11 +47,11 @@ pub fn acquire_calendar(
     // 获取范围内的日历
     let start_date = start_timestamp.format(YEAR_MONTH_DAY).to_string();
     let end_date = end_timestamp.format(YEAR_MONTH_DAY).to_string();
-    let calendar_list = acquire_holidays_within(start_date, end_date);
+    let calendar_list = acquire_holidays_within(start_date, end_date)?;
 
     // 如果数据库无相关数据
     if calendar_list.len() == 0 {
-        return acquire_calendar_list(timestamp, start_timestamp, end_timestamp);
+        return Ok(acquire_calendar_list(timestamp, start_timestamp, end_timestamp));
     }
 
     let mut calendar_dto_list = vec![];
@@ -91,7 +92,7 @@ pub fn acquire_calendar(
     }
 
     // 返回数据
-    calendar_dto_list
+    Ok(calendar_dto_list)
 }
 
 /**

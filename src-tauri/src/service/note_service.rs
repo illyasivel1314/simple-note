@@ -12,15 +12,6 @@ pub fn save_note(note: NoteTable) -> Result<usize, AppError> {
 }
 
 /**
- * @description: 更新便笺内容
- * @author: illya
- * @date: 2025/5/13 00:25
- **/
-pub fn update_note_with_content(note: NoteTable) -> Result<usize, AppError> {
-    note::update_note_with_content(note.key, note.content)
-}
-
-/**
  * @description: 查询对应的note
  * @author: illya
  * @date: 2025/5/13 00:25
@@ -40,17 +31,16 @@ pub fn acquire_note_by_timestamp(timestamp: i64) -> Result<Vec<NoteTable>, AppEr
 
 /**
  * @description: 删除便笺
- * @author: illya 
+ * @author: illya
  * @date: 2025/6/1 13:54
  **/
 pub fn delete_note(key: String) -> Result<usize, AppError> {
     note::delete_note_by_key(key)
 }
 
-
 /**
  * @description: 更新便笺
- * @author: illya 
+ * @author: illya
  * @date: 2025/6/1 13:54
  **/
 pub fn update_note(note: NoteTable) -> Result<usize, AppError> {
@@ -59,7 +49,7 @@ pub fn update_note(note: NoteTable) -> Result<usize, AppError> {
 
 /**
  * @description:
- * @author: illya 
+ * @author: illya
  * @date: 2025/6/1 15:07
  **/
 pub fn update_note_finished(key: String, finish: i32) -> Result<usize, AppError> {

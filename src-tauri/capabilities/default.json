@@ -3,11 +3,14 @@
   "identifier": "default",
   "description": "Capability for the main window",
   "windows": [
-    "main"
+    "main",
+    "splashscreen",
+    "calendar"
   ],
   "permissions": [
     "core:default",
     "opener:default",
-    "log:default"
+    "log:default",
+    "notification:default"
   ]
 }

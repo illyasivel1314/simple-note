@@ -4,9 +4,9 @@ use crate::configuration::utils::time_util;
 use crate::dao;
 use crate::dao::calendar::CalendarTable;
 use chrono::Datelike;
+use log::info;
 use serde::{Deserialize, Serialize};
 use std::fs::DirEntry;
-use log::info;
 
 #[derive(Serialize, Deserialize)]
 struct CalendarJson {
@@ -93,7 +93,7 @@ pub fn update_holiday_to_database() -> Result<(), AppError> {
     // 读取文件夹中的所有文件
     let file_list = file_util::acquire_file_list(HOLIDAY_ADDRESS)?;
     info!("Tauri database plugin read file list successfully!");
-    
+
     // 通过多线程读取所有文件内容
     let mut holiday_table_list = vec![];
     for file_result in file_list {
@@ -103,11 +103,11 @@ pub fn update_holiday_to_database() -> Result<(), AppError> {
     info!("Tauri database plugin acquire file content successfully!");
 
     // 先删除表中所有数据
-    dao::calendar::delete_holiday();
+    dao::calendar::delete_holiday()?;
     // 向表中新增所有数据
-    dao::calendar::insert_holiday_list(holiday_table_list);
+    dao::calendar::insert_holiday_list(holiday_table_list)?;
     info!("Tauri database plugin insert data successfully!");
-    
+
     Ok(())
 }
 

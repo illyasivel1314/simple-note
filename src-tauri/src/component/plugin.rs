@@ -4,12 +4,10 @@ use crate::configuration::database::index::system_database_init;
 use crate::configuration::utils::error_util::AppError;
 use crate::configuration::utils::{file_util, time_util};
 use log::info;
-use std::thread::sleep;
-use std::time::Duration;
 use tauri::menu::{Menu, MenuItem};
 use tauri::plugin::Builder;
 use tauri::tray::{MouseButton, TrayIconBuilder, TrayIconEvent};
-use tauri::{AppHandle, Emitter, Manager, Runtime};
+use tauri::{AppHandle, Manager, Runtime};
 
 /**
  * @description: 日志插件
@@ -68,29 +66,32 @@ pub fn tauri_plugin_single(app: &AppHandle, _args: Vec<String>, _cwd: String) {
 pub fn tauri_plugin_database_init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
     Builder::<R>::new("<database-init>")
         .setup(|app, _api| {
-            let app_async = app.clone();
-            tauri::async_runtime::spawn(async move {
-                database_init().await.unwrap();
-                // 将任务保存至manage列表中
-                create_initialization_emit(app_async).await;
-            });
+            database_init(app.clone())?;
             Ok(())
         })
         .build()
 }
 
-async fn database_init() -> Result<(), AppError> {
+fn database_init<R: Runtime>(app: AppHandle<R>) -> Result<(), AppError> {
     info!("Tauri database plugin is being initialized");
     let database_url = file_util::acquire_database_url();
     // 判断是否初始化完成
     if file_util::file_valid(database_url.as_str()) {
         info!("Tauri database plugin don't need to run");
+        tauri::async_runtime::spawn(async move {
+            // 将任务保存至manage列表中
+            create_initialization_emit(app).await;
+        });
         return Ok(());
     }
     // 创建数据库
     system_database_init(database_url)?;
-    // 初始化数据
-    update_holiday_to_database()?;
+    tauri::async_runtime::spawn(async move {
+        // 初始化数据
+        update_holiday_to_database().unwrap();
+        // 将任务保存至manage列表中
+        create_initialization_emit(app).await;
+    });
     info!("Tauri database plugin initialization is complete");
     Ok(())
 }

@@ -6,7 +6,6 @@ use std::backtrace::Backtrace;
 use std::panic;
 use std::panic::PanicHookInfo;
 use std::process::exit;
-use tauri::AppHandle;
 
 pub fn panic_handler(panic_info: &PanicHookInfo) {
     let thread = panic_info.location().unwrap();
@@ -21,14 +20,14 @@ pub fn panic_handler(panic_info: &PanicHookInfo) {
         thread.line(),
         Backtrace::force_capture()
     );
-    exit(1);
+    exit(0);
 }
 
 fn main() {
     // 加载 .env 文件中的变量
     dotenv().ok();
     // 异常回滚
-    panic::set_hook(Box::new(panic_handler));
+    // panic::set_hook(Box::new(panic_handler));
     // 运行tauri程序
     simple_note_lib::run();
 }

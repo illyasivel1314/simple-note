@@ -3,6 +3,7 @@ use crate::dao::note::NoteTable;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Default)]
+#[derive(Debug)]
 pub struct NoteVO {
     // 唯一标识
     pub key: String,
@@ -10,18 +11,18 @@ pub struct NoteVO {
     pub start_stamp: i64,
     // 执行结束时间戳
     pub end_stamp: i64,
-    
+
     // 内容
     pub content: Option<String>,
     // 标签类型
     pub tag_type: Option<i32>,
     // 是否完成
     pub finished_valid: Option<i32>,
-    
+
     // 是否提醒
-    pub reminder_valid : Option<i32>,
+    pub reminder_valid: Option<i32>,
     // 提醒时间
-    pub reminder_stamp: Option<i64>
+    pub reminder_stamp: Option<i64>,
 }
 
 impl NoteVO {
@@ -56,7 +57,7 @@ impl NoteVO {
         let mut note = old_note;
         note.start_time = new_note.start_stamp;
         note.end_time = new_note.end_stamp;
-        
+
         if let Some(value) = new_note.content {
             note.content = value;
         }
@@ -66,7 +67,7 @@ impl NoteVO {
         if let Some(value) = new_note.finished_valid {
             note.finished_valid = value;
         }
-        
+
         if let Some(value) = new_note.reminder_valid {
             note.reminder_valid = value;
             if value == 0 {

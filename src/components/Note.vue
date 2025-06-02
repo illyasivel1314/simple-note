@@ -51,8 +51,8 @@
                                     <!-- 菜单栏 -->
                                     <template #overlay>
                                         <a-menu>
-                                            <a-menu-item key="1" v-if="list[index].finished_valid == 0" @click="archiveNote(index)">归档</a-menu-item>
-                                            <a-menu-item key="2" v-else @click="archiveNote(index)">取消归档</a-menu-item>
+                                            <a-menu-item key="1" v-if="list[index].finished_valid == 0" @click="archiveNote(index)">完成</a-menu-item>
+                                            <a-menu-item key="2" v-else @click="archiveNote(index)">未完成</a-menu-item>
                                             <a-menu-item key="4" @click="removeNote(index)">删除</a-menu-item>
                                             <a-menu-item key="3" @click="setConfiguration(index)">更多设置</a-menu-item>
                                         </a-menu>
@@ -70,7 +70,7 @@
                                         </a-radio-group>
                                     </a-form-item>
                                     <!-- 执行时间 -->
-                                    <a-form-item v-show="list[index].tag_type == 1" label="执行时间">
+                                    <a-form-item v-show="list[index].tag_type == 1" label="便笺周期">
                                         <a-range-picker
                                             v-model:value="list[index].execute_stamp" 
                                             class="time-picker-style"
@@ -78,7 +78,6 @@
                                             :size="'small'"
                                             :bordered="false"
                                             :allowClear="false"
-                                            :disabled-date="disabledDate"
                                         />
                                     </a-form-item>
                                     <!-- 是否提醒 -->
@@ -90,14 +89,20 @@
                                     </a-form-item>
                                     <!-- 提醒时间 -->
                                     <a-form-item v-show="list[index].reminder_valid == 1" label="提醒时间">
-                                        <a-date-picker show-time v-model:value="list[index].reminder_stamp"
+                                        <a-date-picker v-model:value="list[index].reminder_stamp"
                                             class="time-picker-style"
-                                            :format="'MM/DD HH:mm'"
+                                            format="MM-DD HH:mm"
+                                            :show-time="{ 
+                                                hideDisabledOptions: true, 
+                                                format: 'HH:mm', 
+                                                minuteStep: 5 
+                                            }"
                                             :bordered="false"
                                             :allowClear="false"
                                             :size="'small'"  
                                             :disabled-date="disabledDate"
                                             :disabled-time="disabledTime"
+                                            :showNow="false"
                                         />
                                     </a-form-item>
                                     <!-- 按钮组 -->
@@ -253,7 +258,7 @@ const compontTag = computed(() => {
 
 /* 不能选择之前的时间 */
 const disabledDate = (current: Dayjs) => {
-  return current && current < dayjs().startOf('day');
+    return current && current < dayjs().startOf('day');
 };
 const disabledTime = (current: Dayjs) => {
   const now = dayjs(); // 当前时间
@@ -261,8 +266,6 @@ const disabledTime = (current: Dayjs) => {
   if (current && current.isSame(now, 'day')) {
     return {
       disabledHours: () => range(0, now.hour()),
-      disabledMinutes: () => range(0, now.minute()),
-      disabledSeconds: () => range(0, now.second()),
     };
   }
   
@@ -270,7 +273,6 @@ const disabledTime = (current: Dayjs) => {
   return {
     disabledHours: () => [],
     disabledMinutes: () => [],
-    disabledSeconds: () => [],
   };
 };
 // 辅助函数：生成数字范围
@@ -285,22 +287,22 @@ const range = (start: number, end: number) => {
 // 修改执行方式
 const changeCategory = (index: number) => {
   // 单次的执行周期都是今天
-  if (list.value[index].tag_type === 0) {
-    list.value[index].execute_stamp = [dayjs(timestamp.value), dayjs(timestamp.value)] as [Dayjs, Dayjs]
-  }
+    if (list.value[index].tag_type === 0) {
+        list.value[index].execute_stamp = [dayjs(timestamp.value), dayjs(timestamp.value)] as [Dayjs, Dayjs]
+    }
 }
 // 修改是否提醒时间
 const changeReminder = (index: number) => {
-  if (list.value[index].reminder_valid === 0) {
-    list.value[index].reminder_stamp = null;
-  }
+    if (list.value[index].reminder_valid === 0) {
+        list.value[index].reminder_stamp = null;
+    }
 }
 
 // 归档
 const archiveNote = (index: number) => {
-  list.value[index].finished_valid = list.value[index].finished_valid === 0 ? 1 : 0;
-  // 调用后端接口
-  updateNoteFinish(list.value[index].key, list.value[index].finished_valid);
+    list.value[index].finished_valid = list.value[index].finished_valid === 0 ? 1 : 0;
+    // 调用后端接口
+    updateNoteFinish(list.value[index].key, list.value[index].finished_valid);
 }
 
 // 移除
@@ -324,6 +326,9 @@ const enterSettingSubmit = (index: number) => {
     let note = list.value[index];
     if (note.reminder_valid === 1 && note.reminder_stamp == null) {
         message.error('请设置提醒时间');
+        return;
+    } else if (note.reminder_valid === 1 && dayjs().add(5, "minute").isAfter(note.reminder_stamp)) {
+        message.error('提醒时间过近...');
         return;
     }
     

@@ -51,7 +51,7 @@ pub fn run() {
         .plugin(tauri_plugin_log_init())                                    /* 日志插件 */
         .plugin(tauri_plugin_database_init())                               /* 自定义数据库插件 */
         .plugin(tauri_plugin_tray())                                        /* 自定义托盘插件 */
-        // .plugin(tauri_plugin_prevent_default::init())                       /* 阻止默认浏览器快捷键 */
+        .plugin(tauri_plugin_prevent_default::init())                       /* 阻止默认浏览器快捷键 */
         .setup(tauri_setup_init)                                            /* 程序初始化插件 */
         .invoke_handler(tauri::generate_handler![
             calendar_controller::calendar_content,

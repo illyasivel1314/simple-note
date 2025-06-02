@@ -220,7 +220,7 @@ const compontTag = computed(() => {
     let tagList: { color: string, content: string}[] = [];
     list.value.forEach((note: NoteInterface) => {
         let now = dayjs();
-        if (note.tag_content == true) {
+        if (note.tag_content) {
             tagList.push({
                 color: 'cyan',
                 content: '新增'
@@ -350,10 +350,6 @@ const enterSettingSubmit = (index: number) => {
 .header-text-style {
     font-size: 20px;
     font-weight: bold;
-}
-/* 图标显示 */
-.header-icon-style {
-    width: 30%;
 }
 
 /* 内容显示样式 */

@@ -39,3 +39,5 @@ pub async fn create_calendar_window(app: AppHandle) -> WebviewWindow {
     // window.open_devtools();
     window
 }
+
+

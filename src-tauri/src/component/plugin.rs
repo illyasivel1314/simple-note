@@ -4,7 +4,7 @@ use crate::configuration::database::index::system_database_init;
 use crate::configuration::utils::error_util::AppError;
 use crate::configuration::utils::{file_util, time_util};
 use log::info;
-use tauri::menu::{Menu, MenuItem};
+use tauri::menu::{MenuBuilder, MenuItem};
 use tauri::plugin::Builder;
 use tauri::tray::{MouseButton, TrayIconBuilder, TrayIconEvent};
 use tauri::{AppHandle, Manager, Runtime};
@@ -119,7 +119,12 @@ fn create_tauri_tray_menu<R: Runtime>(
 ) -> Result<(), Box<dyn std::error::Error>> {
     info!("Tauri tray plugin is being initialized");
     let quit_menu = MenuItem::with_id(app, "quit", "退出", true, None::<&str>)?;
-    let menu = Menu::with_items(app, &[&quit_menu])?;
+    let about_menu = MenuItem::with_id(app, "about", "关于", true, None::<&str>)?;
+    
+    let menu = MenuBuilder::new(app)
+        .item(&quit_menu)
+        .separator()
+        .build()?;
     TrayIconBuilder::new()
         .icon(app.default_window_icon().unwrap().clone())
         .menu(&menu)

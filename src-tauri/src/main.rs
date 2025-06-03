@@ -9,15 +9,18 @@ use std::process::exit;
 
 pub fn panic_handler(panic_info: &PanicHookInfo) {
     let thread = panic_info.location().unwrap();
-    let msg = match panic_info.payload().downcast_ref::<&str>() {
-        Some(s) => *s,
-        None => "Box<Any>",
+    let msg = if let Some(s) = panic_info.payload().downcast_ref::<&str>() {
+        *s
+    } else if let Some(s) = panic_info.payload().downcast_ref::<String>() {
+        s
+    } else {
+        "Box<Any>"
     };
     log::error!(
-        "Panic occurred at {}, {}:{}\n{}",
-        msg,
+        "Panic occurred at {}:{}, {}\n{}",
         thread.file(),
         thread.line(),
+        msg,
         Backtrace::force_capture()
     );
     exit(0);
@@ -27,7 +30,7 @@ fn main() {
     // 加载 .env 文件中的变量
     dotenv().ok();
     // 异常回滚
-    // panic::set_hook(Box::new(panic_handler));
+    panic::set_hook(Box::new(panic_handler));
     // 运行tauri程序
     simple_note_lib::run();
 }

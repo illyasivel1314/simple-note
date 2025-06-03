@@ -13,12 +13,13 @@
                             <PlusOutlined :style="{color: 'white', fontSize: '20px'}"/>
                         </template>
                     </a-button>
-                    <!-- 设置按钮 -->
+                    <!-- 设置按钮
                     <a-button type="text" @click="">
                         <template #icon>
                             <SettingOutlined :style="{color: 'white', fontSize: '20px'}"/>
                         </template>
                     </a-button>
+                     -->
                 </a-space>
             </a-flex>
         </a-layout-header>

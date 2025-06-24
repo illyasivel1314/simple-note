@@ -33,8 +33,8 @@ import dayjs from 'dayjs';
 import updateLocale from 'dayjs/plugin/updateLocale';
 import 'dayjs/locale/zh-cn';
 import Note from "/src/components/Note.vue";
-import { computed } from "vue";
-// import { platform } from '@tauri-apps/plugin-os';
+import { computed, ref } from "vue";
+import { platform } from '@tauri-apps/plugin-os';
 
 dayjs.locale('zh-cn');
 dayjs.extend(updateLocale);
@@ -42,10 +42,9 @@ dayjs.updateLocale('zh-cn', {
   weekStart: 0,
 });
 
-// let system = ref(platform());
+let system = ref(platform());
 let opacitySystem = computed(() => {
-  return "1";
-  // return system.value === 'windows' ? "0.8" : "1";
+  return system.value === 'windows' ? "0.8" : "1";
 })
 
 

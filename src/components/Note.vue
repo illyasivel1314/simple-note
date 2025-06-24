@@ -129,7 +129,7 @@
     </a-layout>
 </template>
 <script setup lang="ts">
-import { PlusOutlined, SettingOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons-vue';
+import { PlusOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons-vue';
 import { computed, nextTick, ref, watch } from 'vue';
 import { v4 as uuid } from 'uuid';
 import store from '../store';

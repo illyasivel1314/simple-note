@@ -1,13 +1,18 @@
 use crate::component::listener::create_initialization_emit;
 use crate::configuration::database::data::calendar::update_holiday_to_database;
-use crate::configuration::database::index::system_database_init;
 use crate::configuration::utils::error_util::AppError;
 use crate::configuration::utils::{file_util, time_util};
 use log::info;
+use rbatis::{table_sync, RBatis};
+use rbatis_crate::acquire_database_connection;
 use tauri::menu::{MenuBuilder, MenuItem};
 use tauri::plugin::Builder;
 use tauri::tray::{MouseButton, TrayIconBuilder, TrayIconEvent};
 use tauri::{AppHandle, Manager, Runtime};
+use crate::configuration::utils::error_util::DatabaseError::DatabaseMigrationsError;
+use crate::dao::calendar::CalendarTable;
+use crate::dao::execute::ExecuteTable;
+use crate::dao::note::NoteTable;
 
 /**
  * @description: 日志插件
@@ -66,32 +71,51 @@ pub fn tauri_plugin_single(app: &AppHandle, _args: Vec<String>, _cwd: String) {
 pub fn tauri_plugin_database_init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
     Builder::<R>::new("<database-init>")
         .setup(|app, _api| {
-            database_init(app.clone())?;
-            Ok(())
+            tauri::async_runtime::block_on(async move {
+                database_init(app.clone()).await?;
+                Ok(())
+            })
         })
         .build()
 }
 
-fn database_init<R: Runtime>(app: AppHandle<R>) -> Result<(), AppError> {
+async fn database_init<R: Runtime>(app: AppHandle<R>) -> Result<(), AppError> {
     info!("Tauri database plugin is being initialized");
+    // 获取数据库地址
     let database_url = file_util::acquire_database_url();
-    // 判断是否初始化完成
-    if file_util::file_valid(database_url.as_str()) {
-        info!("Tauri database plugin don't need to run");
-        tauri::async_runtime::spawn(async move {
-            // 将任务保存至manage列表中
-            create_initialization_emit(app).await;
-        });
-        return Ok(());
+
+    match file_util::file_valid(database_url.as_str()) {
+        true => {
+            info!("Tauri database plugin is already being initialized");
+            return Ok(());
+        }
+        false => {
+            info!("Tauri database plugin create database file");
+            // 创建文件及其父文件
+            file_util::create_file(file_util::acquire_file_path(database_url.as_str()))?;
+            // 同步数据库文件
+            let pool = acquire_database_connection!().await;
+            let mapper = &table_sync::SqliteTableMapper{};
+            RBatis::sync(&pool, mapper, &CalendarTable::default(), "calendar_table").await.map_err(|err| {
+                // 删除文件
+                file_util::delete_file(file_util::acquire_file_path(database_url.as_str())).unwrap();
+                DatabaseMigrationsError(err.into())
+            })?;
+            RBatis::sync(&pool, mapper, &ExecuteTable::default(), "execute_table").await.map_err(|err| {
+                // 删除文件
+                file_util::delete_file(file_util::acquire_file_path(database_url.as_str())).unwrap();
+                DatabaseMigrationsError(err.into())
+            })?;
+            RBatis::sync(&pool, mapper, &NoteTable::default(), "note_table").await.map_err(|err| {
+                // 删除文件
+                file_util::delete_file(file_util::acquire_file_path(database_url.as_str())).unwrap();
+                DatabaseMigrationsError(err.into())
+            })?;
+            info!("Tauri database plugin create database file successfully");
+        }
     }
-    // 创建数据库
-    system_database_init(database_url)?;
-    tauri::async_runtime::spawn(async move {
-        // 初始化数据
-        update_holiday_to_database().unwrap();
-        // 将任务保存至manage列表中
-        create_initialization_emit(app).await;
-    });
+    // 初始化数据
+    update_holiday_to_database().await?;
     info!("Tauri database plugin initialization is complete");
     Ok(())
 }

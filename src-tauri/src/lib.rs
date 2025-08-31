@@ -23,8 +23,6 @@ mod service;
  **/
 pub fn tauri_setup_init(app: &mut App) -> Result<(), Box<dyn std::error::Error>> {
     info!("The program is being initialized");
-    // 初始化内容
-    // todo
 
     let handle = app.handle();
     #[cfg(desktop)]
@@ -44,7 +42,7 @@ pub fn run() {
     tauri::Builder::default()
         .manage((Mutex::new(InitialTaskManger::default()), Condvar::new()))
         .plugin(tauri_plugin_notification::init())                          /* 通知插件 */
-        .plugin(tauri_plugin_os::init())
+        .plugin(tauri_plugin_os::init())                                    /* 系统信息插件 */
         .plugin(tauri_plugin_single_instance::init(tauri_plugin_single))    /* 单实例插件 */
         .plugin(tauri_plugin_positioner::init())                            /* 窗口定位插件 */
         .plugin(tauri_plugin_opener::init())                                /* 文件插件 */

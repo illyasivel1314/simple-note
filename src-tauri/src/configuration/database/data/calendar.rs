@@ -7,6 +7,7 @@ use chrono::Datelike;
 use log::info;
 use serde::{Deserialize, Serialize};
 use std::fs::DirEntry;
+use rbatis_crate::{acquire_database_connection, transaction};
 
 #[derive(Serialize, Deserialize)]
 struct CalendarJson {
@@ -89,7 +90,8 @@ const HOLIDAY_ADDRESS: &str = "./resources/holiday";
  * @author: illya
  * @date: 2025/5/14 15:42
  **/
-pub fn update_holiday_to_database() -> Result<(), AppError> {
+#[transaction(conn = "pool")]
+pub async fn update_holiday_to_database() -> Result<(), AppError> {
     // 读取文件夹中的所有文件
     let file_list = file_util::acquire_file_list(HOLIDAY_ADDRESS)?;
     info!("Tauri database plugin read file list successfully!");
@@ -103,9 +105,9 @@ pub fn update_holiday_to_database() -> Result<(), AppError> {
     info!("Tauri database plugin acquire file content successfully!");
 
     // 先删除表中所有数据
-    dao::calendar::delete_holiday()?;
+    CalendarTable::delete_holiday(&pool).await?;
     // 向表中新增所有数据
-    dao::calendar::insert_holiday_list(holiday_table_list)?;
+    CalendarTable::insert_batch(&pool, &holiday_table_list, holiday_table_list.len() as u64).await?;
     info!("Tauri database plugin insert data successfully!");
 
     Ok(())

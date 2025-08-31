@@ -73,6 +73,6 @@ pub enum DatabaseError {
     DatabasePoolCreateError(r2d2::Error),
 
     #[error("[[Error]] database operation error: {0}")]
-    DatabaseOperationError(#[from] diesel::result::Error),
+    DatabaseOperationError(#[from] rbatis::Error),
     
 }

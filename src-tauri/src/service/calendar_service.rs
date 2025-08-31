@@ -1,16 +1,23 @@
 use crate::configuration::utils::time_util;
 use crate::configuration::utils::time_util::{HOLIDAY_MAP, YEAR_MONTH_DAY};
-use crate::dao::calendar::acquire_holidays_within;
 use crate::entity::calendar::CalendarDto;
 use chrono::{Datelike, Duration, NaiveDate};
+use rbatis_crate::transaction;
 use crate::configuration::utils::error_util::AppError;
+use crate::dao::calendar::CalendarTable;
+
+pub async fn calendar_content(timestamp: i64) -> Result<Vec<CalendarDto>, AppError> {
+    let (start_timestamp, end_timestamp) = calendar_timestamp(timestamp);
+    acquire_calendar(timestamp, start_timestamp, end_timestamp)
+}
+
 
 /**
  * @description: 获取日历开始、结束日期、月初时间
  * @author: illya
  * @date: 2025/5/3 下午4:13
  **/
-pub fn calendar_timestamp(timestamp: i64) -> (NaiveDate, NaiveDate) {
+fn calendar_timestamp(timestamp: i64) -> (NaiveDate, NaiveDate) {
     // 获取月初日期
     let month_begin =
         time_util::acquire_start_month_datetime(time_util::acquire_datetime(timestamp));
@@ -29,7 +36,8 @@ pub fn calendar_timestamp(timestamp: i64) -> (NaiveDate, NaiveDate) {
  * @author: illya
  * @date: 2025/5/3 下午4:10
  **/
-pub fn acquire_calendar(
+#[transaction(conn = "pool")]
+async fn acquire_calendar(
     timestamp: i64,
     start_timestamp: NaiveDate,
     end_timestamp: NaiveDate,
@@ -47,7 +55,7 @@ pub fn acquire_calendar(
     // 获取范围内的日历
     let start_date = start_timestamp.format(YEAR_MONTH_DAY).to_string();
     let end_date = end_timestamp.format(YEAR_MONTH_DAY).to_string();
-    let calendar_list = acquire_holidays_within(start_date, end_date)?;
+    let calendar_list: Vec<CalendarTable> = CalendarTable::acquire_holidays_within(&pool, start_date.as_str(), end_date.as_str())?;
 
     // 如果数据库无相关数据
     if calendar_list.len() == 0 {

@@ -7,7 +7,16 @@ use std::panic;
 use std::panic::PanicHookInfo;
 use std::process::exit;
 
+/**
+ * panic 回滚并且增加日志
+ *
+ * @author illya
+ * @since 2025-10-04
+ * @param 
+ * @return 
+ */
 pub fn panic_handler(panic_info: &PanicHookInfo) {
+    // 
     let thread = panic_info.location().unwrap();
     let msg = if let Some(s) = panic_info.payload().downcast_ref::<&str>() {
         *s
@@ -28,8 +37,6 @@ pub fn panic_handler(panic_info: &PanicHookInfo) {
 
 #[tokio::main]
 async fn main() {
-    // 加载 .env 文件中的变量
-    dotenv().ok();
     // 异常回滚
     panic::set_hook(Box::new(panic_handler));
     // 运行tauri程序

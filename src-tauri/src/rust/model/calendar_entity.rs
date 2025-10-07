@@ -1,4 +1,4 @@
-use rbatis::{impl_delete, impl_select};
+use serde::Serialize;
 
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize, Default)]
 pub struct CalendarTable {
@@ -19,13 +19,19 @@ pub struct CalendarTable {
     // 农历日期
     pub lunar: String,
 }
-rbatis::crud!(CalendarTable {});
 
-// 查询范围内的数据
-impl_select!(CalendarTable {
-    acquire_holidays_within(start: &str, end: &str) => "`where date >= #{start} and date <= #{end}`"
-});
-
-impl_delete!(CalendarTable {
-    delete_holiday() => "`where 1=1`"
-});
+#[derive(Serialize)]
+pub struct CalendarDto {
+    // 当前日期
+    pub calendar: String,
+    // 阳历日期
+    pub solar_calendar: String,
+    // 农历日期
+    pub lunar_calendar: Option<String>,
+    // 是否工作日
+    pub rest_day_valid: Option<i32>,
+    // 是否在本月内
+    pub within_month: bool,
+    // 待办事项
+    pub todo_item: Option<i32>,
+}

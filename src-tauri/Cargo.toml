@@ -9,7 +9,7 @@ edition = "2021"
 
 [lib]
 # The `_lib` suffix may seem redundant but it is necessary
-# to make the lib name unique and wouldn't conflict with the bin name.
+# to make the rust name unique and wouldn't conflict with the bin name.
 # This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
 name = "simple_note_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
@@ -19,13 +19,16 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 # tauri插件
-tauri = { version = "2", features = [ "tray-icon", "image-png" ] }
+tauri = { version = "2", features = ["tray-icon", "image-png"] }
 tauri-plugin-opener = "2"
 tauri-plugin-log = "2"
 tauri-plugin-positioner = { version = "2.0.0", features = ["tray-icon"] }
 tauri-plugin-single-instance = "2"
 tauri-plugin-os = "2"
 tauri-plugin-prevent-default = "2.1"
+tauri-plugin-notification = "2"
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-positioner = "2"
 
 # json配置
 serde = { version = "1", features = ["derive"] }
@@ -37,23 +40,15 @@ tokio = { version = "1", features = ["full"] }
 # 自定义错误
 thiserror = "2.0"
 
-# 环境变量
-dotenvy = "0.15"
 # rbatis
-rbatis_crate = { git = "ssh://git@github.com/illyasivel1314/rbatis_workspace.git" }
+rbatis_crate = { git = "ssh://git@github.com/illyasivel1314/rbatis_workspace.git", branch = "0.0.2" }
 rbs = { version = "4.5" }
-rbatis = { version = "4"}
+rbatis = { version = "4" }
 
-# pool
-r2d2 = "0.8.10"
+derive-getters = "0.5.0"
 
 # 日历组件
 tyme4rs = "1.1.8"
 chrono = "0.4"
 # 全局变量
 log = "0.4.25"
-tauri-plugin-notification = "2"
-
-[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
-tauri-plugin-positioner = "2"
-

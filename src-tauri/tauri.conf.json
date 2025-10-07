@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "simple-note",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "identifier": "com.simple-note.app",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -37,7 +37,6 @@
         "url": "/splashscreen",
         "width": 600,
         "height": 350,
-        "center": true,
         "visible": true,
         "resizable": false,
         "decorations": false
@@ -51,14 +50,13 @@
     "active": true,
     "targets": "all",
     "icon": [
-      "icons/icon.png",
-      "icons/app16.svg",
-      "icons/app32.svg",
-      "icons/app48.svg"
+      "resources/icons/icon.png",
+      "resources/icons/app16.svg",
+      "resources/icons/app32.svg",
+      "resources/icons/app48.svg"
     ],
     "resources": [
-      "resources/holiday/*",
-      "resources/migrations/**/*"
+      "resources/holiday/*"
     ]
   }
 }
